@@ -1,0 +1,15 @@
+listening:
+  pipe_path: /var/run/named.pipe
+messaging:
+  exchange: charon
+  routing_key: charon.uploads
+  rabbitmq:
+    host: 'localhost'
+    port: 5672
+    user: 'guest'
+    password: 'guest'
+publishing:
+  nfs:
+    dest_dir: /mnt/nfs
+logging:
+  level: debug

@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'thor'
+
+# Set up the load path so we can load things from our own lib
+$: << File.expand_path("../../lib", __FILE__)
+
+require 'charon'
+require 'charon/settings'
+
+# Skeleton CLI class
+class CharonApp < Thor
+  check_unknown_options!
+end
+
+# load all commands
+cmd_root = "../../lib/commands/*"
+Charon.before_command_load
+Dir[File.expand_path(cmd_root, __FILE__)].each do |cmd|
+  require cmd
+end
+Charon.after_command_load
+
+unless $0 =~ /rspec/
+  CharonApp.start
+end

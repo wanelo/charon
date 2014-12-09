@@ -4,5 +4,10 @@ end
 
 module Charon::Test
   module Fixtures
+    class << self
+      def received_file
+        fixture('user/file.txt')
+      end
+    end
   end
 end

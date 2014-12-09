@@ -1,4 +1,10 @@
 require 'simplecov'
+require 'em-spec/rspec'
+require 'lapine/test/rspec_helper'
+require 'pry'
+
+require 'charon'
+
 SimpleCov.start
 
 pid = Process.pid
@@ -7,6 +13,29 @@ SimpleCov.at_exit do
 end
 
 $LOAD_PATH << File.expand_path('../../lib', __FILE__)
+$LOAD_PATH << File.expand_path('../../bin/lib', __FILE__)
 
 require File.expand_path('../fixtures.rb', __FILE__)
 require File.expand_path('../resources.rb', __FILE__)
+require File.expand_path('../helpers.rb', __FILE__)
+
+include Charon::Test
+include Charon::Test::Helpers
+
+RSpec.configure do |c|
+  c.include EM::SpecHelper
+  c.include Lapine::Test::RSpecHelper, fake_rabbit: true
+
+  c.before :each, :fake_rabbit do |example|
+    Lapine::Test::RSpecHelper.setup(example)
+    Charon.before_command_load
+  end
+
+  c.after :each, :fake_rabbit do
+    Lapine::Test::RSpecHelper.teardown
+  end
+
+  c.before :each do
+    Charon.logger = Logger.new('/dev/null')
+  end
+end

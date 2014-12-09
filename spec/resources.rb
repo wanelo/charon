@@ -3,5 +3,6 @@ def resource(filename)
 end
 module Charon::Test
   module Resources
+    require resource('pipe.rb')
   end
 end
