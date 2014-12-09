@@ -1,6 +1,11 @@
 # Charon
 
-TODO: Write a gem description
+Charon is a daemon that watches a named pipe for files that have been uploaded to an FTP server
+by users. It was designed to work with PureFTPd's upload-script feature. PureFTPd will write the
+full path to the uploaded file once it has finished uploading to a named pipe in /var/run/pure-ftpd.
+
+Charon listens to that named pipe for those paths, publishes the uploaded files to NFS, Object Storage,
+etc. and then notifies people of the file's existence via RabbitMQ.
 
 ## Installation
 
@@ -18,7 +23,29 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    `bundle exec bin/charon start [path/to/coniguration.yml]`
+
+## Configuration
+
+The configuration must contain, at a minimum, the following:
+
+```yaml
+listening:
+  pipe_path: /var/run/named.pipe
+messaging:
+  exchange: charon
+  routing_key: charon.uploads
+  rabbitmq:
+    host: 'localhost'
+    port: 5672
+    user: 'guest'
+    password: 'guest'
+publishing:
+  nfs:
+    dest_dir: /mnt/nfs
+logging:
+  level: debug
+```
 
 ## Contributing
 
@@ -28,10 +55,7 @@ TODO: Write usage instructions here
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-
 ## Testing
-
-TODO: Add information specific to your gem's test suite.
 
 The Rakefile comes with several convenience tasks for running tests as well. By rake task:
 
