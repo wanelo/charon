@@ -20,7 +20,7 @@ module Charon
         )
 
         Lapine.add_exchange(settings.exchange,
-          durable: false,
+          durable: settings.durable,
           connection: 'charon-rabbitmq',
           type: 'topic'
         )

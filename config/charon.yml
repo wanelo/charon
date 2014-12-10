@@ -2,6 +2,7 @@ listening:
   pipe_path: /var/run/named.pipe
 messaging:
   exchange: charon
+  durable: false
   routing_key: charon.uploads
   rabbitmq:
     host: 'localhost'
