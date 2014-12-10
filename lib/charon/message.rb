@@ -18,7 +18,8 @@ module Charon
           host: connection.host,
           port: connection.port,
           user: connection.user,
-          password: connection.password
+          password: connection.password,
+          vhost: connection.vhost
         )
 
         Lapine.add_exchange(settings.exchange,

@@ -40,6 +40,7 @@ messaging:
     port: 5672
     user: 'guest'
     password: 'guest'
+    vhost: '/'
 publishing:
   nfs:
     dest_dir: /mnt/nfs
