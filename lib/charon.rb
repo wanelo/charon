@@ -1,6 +1,5 @@
 require 'charon/version'
 require 'charon/settings'
-require 'charon/message'
 require 'logger'
 
 module Charon
@@ -10,6 +9,7 @@ module Charon
     end
 
     def logger
+      $stdout.sync = true
       @logger ||= Logger.new($stdout).tap do |logger|
         logger.level = Logger.const_get(Settings.logging.level.upcase)
         logger.progname = 'charon'
@@ -18,13 +18,5 @@ module Charon
         }
       end
     end
-  end
-  # Callback invoked before the CLI loads all its command modules.
-  def self.before_command_load
-    Charon::Message.initialize_lapine
-  end
-
-  # Callback invoked after the CLI loads all its command modules.
-  def self.after_command_load
   end
 end

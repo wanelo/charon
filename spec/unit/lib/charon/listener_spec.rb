@@ -1,40 +1,29 @@
 require 'charon/listener'
 
-RSpec.describe Charon::Listener, eventmachine: true do
-  subject { EM.watch(pipe, Charon::Listener) }
-  let(:fd) { IO.sysopen('/tmp/charon.pipe', Fcntl::O_RDWR|Fcntl::O_NONBLOCK) }
-  let(:pipe) { IO.new(fd, Fcntl::O_RDWR|Fcntl::O_NONBLOCK) }
-  let(:received_file) { "#{Fixtures::received_file}\n" }
-  let(:dest_path) { File.join('/tmp/charon', 'user', File.basename(received_file)) }
+RSpec.describe Charon::Listener do
+  subject { described_class.new(0) } # Dirty hack that makes it actually initialize
+  let(:publisher) { double('Charon::Publisher', callback: ->() { yield }, publish: true) }
+  let(:notifier) { double('Charon::Notifier', notify: true) }
+  let(:files) { ["\u0002username\u0001file1.txt\u0000", "\u0002username\u0001file2.txt\u0000"].join }
+  let(:pipe) { Resources::Pipe.new }
+  let(:reader) { pipe.reader }
+  let(:writer) { pipe.writer }
+
 
   describe '#notify_readable' do
     before do
-      system('mkfifo /tmp/charon.pipe')
-      FileUtils.mkdir_p('/tmp/charon')
+      allow(Charon::NfsPublisher).to receive(:new).and_return(publisher)
+      allow_any_instance_of(Logger).to receive(:info)
+      allow(Charon::Notifier).to receive(:new).and_return(notifier)
+      subject.instance_variable_set(:@io, reader)
+      writer.write(files)
     end
 
-    after do
-      system('rm /tmp/charon.pipe')
-      Dir.rmdir('/tmp/charon')
-    end
-
-    # XXX: Disabled, because reasons... i.e. we don't know how to do this yet.
-    #      EventMachine runs, data is written to pipe but callbacks are not fired.
-    xit 'publishes the data' do
-      EventMachine.run do
-        subject.dest_path = '/tmp/charon'
-        subject.notify_readable = true
-
-        EM.add_timer(1) {
-          pipe.write(received_file)
-        }
-
-        EM.add_timer(2) {
-          EventMachine.stop_event_loop
-        }
-      end
-
-      expect(File.exist?('/tmp/charon/file.txt')).to be true
+    it 'parses null-terminated strings' do
+      subject.notify_readable
+      subject.notify_readable
+      expect(publisher).to have_received(:publish).with('username', 'file1.txt').once
+      expect(publisher).to have_received(:publish).with('username', 'file2.txt').once
     end
   end
 end

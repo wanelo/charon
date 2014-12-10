@@ -4,6 +4,7 @@ RSpec.describe Charon::NfsPublisher do
   let(:dest_path) { '/tmp' }
   let(:logger) { double('logger', fatal: true, info: true)}
   let(:source_path) { Fixtures::received_file }
+  let(:username) { 'user' }
   let(:destination_path) { File.join(dest_path, 'user', 'file.txt') }
   subject { Charon::NfsPublisher.new(dest_path) }
 
@@ -20,7 +21,7 @@ RSpec.describe Charon::NfsPublisher do
         em do
           expect(Dir).to receive(:mkdir).with(File.dirname(destination_path))
           expect(FileUtils).to receive(:cp).with(source_path, destination_path).and_return(true)
-          subject.publish(source_path)
+          subject.publish(username, source_path)
           EM.add_timer(0.5) do
             expect(@user).to eq('user')
             done
@@ -37,13 +38,13 @@ RSpec.describe Charon::NfsPublisher do
       end
 
       it 'raises the exception via the errback' do
-        subject.publish(source_path)
+        subject.publish(username,source_path)
         expect(subject).to have_received(:fail).with(an_instance_of(Errno::ENOENT))
         expect(@user).to eq(nil)
       end
 
       it 'logs fatal error' do
-        subject.publish(source_path)
+        subject.publish(username,source_path)
         expect(logger).to have_received(:fatal)
       end
     end

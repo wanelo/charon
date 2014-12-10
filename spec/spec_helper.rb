@@ -3,6 +3,8 @@ require 'em-spec/rspec'
 require 'lapine/test/rspec_helper'
 require 'pry'
 
+require 'charon/settings'
+Charon::Settings.source File.expand_path('../../config/charon.yml', __FILE__)
 require 'charon'
 
 SimpleCov.start
@@ -28,7 +30,7 @@ RSpec.configure do |c|
 
   c.before :each, :fake_rabbit do |example|
     Lapine::Test::RSpecHelper.setup(example)
-    Charon.before_command_load
+    Charon::Message.initialize_lapine
   end
 
   c.after :each, :fake_rabbit do

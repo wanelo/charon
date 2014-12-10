@@ -2,9 +2,6 @@ require 'lapine'
 require 'charon/settings'
 
 module Charon
-  # In order to use Charon::Messages, you must at some point call
-  # Charon::Message.exchange(routing_key) unless you wish to use the
-  # default exchange.
   class Message
     include Lapine::Publisher
 
